@@ -6,34 +6,13 @@ import whisper #pip install -U openai-whisper
 ### whisper requires ffmpeg: on windows: choco install ffmpeg
 import json
 import API_TOKEN
+import bancoDados
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(BASE_DIR, "lojas.db")
 
-def create_db():
-  conn = sqlite3.connect(db_path)
-  c = conn.cursor()
+bancoDados.create_db()
 
-  # Create tables
-  c.execute("""CREATE TABLE IF NOT EXISTS produtos (
-                nome TEXT, 
-                departamento TEXT
-            )""")
-
-  c.executemany("INSERT INTO produtos VALUES (?, ?)", [
-    ("sabonete", "higiene"),
-    ("agua", "bebidas"),
-    ("coca", "bebidas"),
-  ])
-
-  conn.commit()
-  conn.close()
-
-create_db()
-
-conn = sqlite3.connect(db_path)
-results = conn.execute("SELECT * from produtos").fetchall()
-print(results)
 
 lm = dspy.LM('openai/gemma-4-E2B-it-IQ4_XS', api_base='http://localhost:1337/v1', api_key='not-needed')
 dspy.configure(lm=lm)
