@@ -1,0 +1,4 @@
+API_TOKEN = 'Colocar Token do bot aqui'
+
+def darToken():
+    return API_TOKEN
