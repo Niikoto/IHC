@@ -9,16 +9,17 @@ def create_db():
   c = conn.cursor()
 
   # Create tables
-  c.execute("""CREATE TABLE IF NOT EXISTS produtos (
+  result = c.execute("""CREATE TABLE IF NOT EXISTS produtos (
                 nome TEXT, 
                 departamento TEXT
             )""")
 
-  c.executemany("INSERT INTO produtos VALUES (?, ?)", [
-    ("sabonete", "higiene"),
-    ("agua", "bebidas"),
-    ("coca", "bebidas"),
-  ])
+  if(not result):
+    c.executemany("INSERT INTO produtos VALUES (?, ?)", [
+        ("sabonete", "higiene"),
+        ("agua", "bebidas"),
+        ("coca", "bebidas"),
+    ])
 
   conn.commit()
   conn.close()
