@@ -5,29 +5,39 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(BASE_DIR, "lojas.db")
 
 def create_db():
-  conn = sqlite3.connect(db_path)
-  c = conn.cursor()
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
 
-  # Create tables
-  try:
-    c.execute("""CREATE TABLE IF NOT EXISTS produtos (
-                nome TEXT PRIMARY KEY, 
-                departamento TEXT
-            )""")
-    c.executemany("INSERT or IGNORE INTO produtos VALUES(?, ?)", [
-            ("sabonete", "higiene"),
-            ("agua", "bebidas"),
-            ("coca", "bebidas"),
+    # Create tables com schema mais complexo
+    try:
+        c.execute("""CREATE TABLE IF NOT EXISTS estoque (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        produto TEXT UNIQUE, 
+                        departamento TEXT,
+                        data_fabricacao TEXT,
+                        data_validade TEXT
+                    )""")
+        
+        # INSERT or IGNORE precisa que o 'produto' seja UNIQUE para não duplicar
+        c.executemany("""INSERT or IGNORE INTO estoque 
+                         (produto, departamento, data_fabricacao, data_validade) 
+                         VALUES(?, ?, ?, ?)""", [
+            ("sabonete", "higiene", "2026-01-10", "2028-01-10"),
+            ("agua", "bebidas", "2026-05-15", "2027-05-15"),
+            ("coca", "bebidas", "2026-06-20", "2026-12-20"),
         ])
 
-  except:
-   return"Erro"
+    except Exception as e:
+        print(f"Erro no banco: {e}")
+        return "Erro"
 
-  conn.commit()
-  conn.close()
+    conn.commit()
+    conn.close()
 
-create_db()
-
-conn = sqlite3.connect(db_path)
-results = conn.execute("SELECT * from produtos").fetchall()
-print(results)
+# Executa e testa
+if __name__ == "__main__":
+    create_db()
+    conn = sqlite3.connect(db_path)
+    results = conn.execute("SELECT * from estoque").fetchall()
+    print("Banco atualizado:")
+    print(results)
