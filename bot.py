@@ -8,11 +8,7 @@ import json
 import API_TOKEN
 import bancoDados
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "lojas.db")
-
 bancoDados.create_db()
-
 
 lm = dspy.LM('openai/gemma-4-E2B-it-IQ4_XS', api_base='http://localhost:1337/v1', api_key='not-needed')
 dspy.configure(lm=lm)
@@ -50,7 +46,7 @@ def generate(question):
     generator = ReliableSQLGenerator()
     sql = generator.forward(schema, question)
     print(sql)
-    conn = sqlite3.connect(f'file:{db_path}?mode=ro', uri=True)
+    conn = sqlite3.connect(f'file:{bancoDados.db_path}?mode=ro', uri=True)
     print(sql.sql_query)
     results = conn.execute(sql.sql_query).fetchall()
     return results
