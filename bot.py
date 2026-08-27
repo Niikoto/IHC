@@ -50,7 +50,7 @@ def generate(question):
     generator = ReliableSQLGenerator()
     sql = generator.forward(schema, question)
     print(sql)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(f'file:{db_path}?mode=ro', uri=True)
     print(sql.sql_query)
     results = conn.execute(sql.sql_query).fetchall()
     return results
