@@ -4,15 +4,12 @@ import os
 import telebot 
 import whisper
 import json
-import API_TOKEN
-import bancoDados
-
-
-bancoDados.create_db()
-
 
 lm = dspy.LM('openai/gemma-4-E2B-it-IQ4_XS', api_base='http://localhost:1337/v1', api_key='not-needed')
 dspy.configure(lm=lm)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "lojas.db")
 
 class TextToSQL(dspy.Signature):
     """Generate SQL from natural language.
@@ -48,7 +45,8 @@ def validar_sql(sql_query):
         mem_c.execute("""
             CREATE TABLE estoque (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                produto TEXT UNIQUE, 
+                produto TEXT UNIQUE,
+                preco REAL,
                 departamento TEXT,
                 data_fabricacao TEXT,
                 data_validade TEXT
@@ -67,6 +65,7 @@ def generate(question):
     CREATE TABLE estoque (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         produto TEXT UNIQUE, 
+        preco REAL,
         departamento TEXT,
         data_fabricacao TEXT,
         data_validade TEXT
@@ -86,7 +85,7 @@ def generate(question):
     
     # Se passou na segurança, executa no banco real
     try:
-        conn = sqlite3.connect(bancoDados.db_path)
+        conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row # Para retornar como dicionário
         results = conn.execute(sql_gerado).fetchall()
         conn.close()
@@ -95,7 +94,7 @@ def generate(question):
         return {"erro": f"Erro ao executar no banco real: {e}"}
 
 # configuração do bot do Telegram
-API_KEY = API_TOKEN.darToken()
+API_KEY = ""
 bot = telebot.TeleBot(API_KEY)
 
 @bot.message_handler(func=lambda message: True)
@@ -133,5 +132,6 @@ def whisper_transcribe(filepath: str, model="tiny") -> str:
     result = modelo.transcribe(filepath)
     return result["text"]
 
-print("Bot rodando, Mande uma mensagem lá no Telegram my friend...")
-bot.polling()
+if __name__ == "__main__":
+    print("Bot rodando, Mande uma mensagem lá no Telegram my friend...")
+    bot.polling()
