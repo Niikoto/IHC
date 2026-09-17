@@ -5,7 +5,10 @@ import re
 import telebot 
 import whisper
 import json
-from API_TOKEN import TOKEN
+from dotenv import load_dotenv
+
+load_dotenv()
+TOKEN = os.getenv("TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
 
